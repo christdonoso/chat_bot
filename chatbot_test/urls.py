@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.chat),
     path('get_response', views.get_response)
+    path('bd', views.bd)
+
 ]
