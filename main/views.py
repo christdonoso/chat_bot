@@ -18,10 +18,10 @@ def get_response(request):
     json_data = json.loads(data)
     message = run_agent(json_data['message'])
     print(message)
-    Message.objects.create(
-        user_message = json_data['message'],
-        bot_message = message
-    )
+    # Message.objects.create(
+    #     user_message = json_data['message'],
+    #     bot_message = message
+    # )
     return JsonResponse({'message':message})
 
 
