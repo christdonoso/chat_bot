@@ -31,7 +31,7 @@ def get_info(ctx: RunContext[str]):
     """
     try:
         # Cargar el documento
-        documento = Document('syllabus.docx')
+        documento = Document('main/syllabus.docx')
 
         contenido = []
 
