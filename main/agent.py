@@ -3,14 +3,15 @@ from pydantic_ai.models.openai import OpenAIModel
 from docx import Document
 from pydantic_ai import Agent, RunContext
 import nest_asyncio
+import os
 
 
 nest_asyncio.apply()
 
-API_KEY = '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'
+VAR = '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'
 
 
-model = OpenAIModel('gpt-4o', api_key=API_KEY)
+model = OpenAIModel('gpt-4o', api_key=VAR)
 
 
 agent = Agent(
