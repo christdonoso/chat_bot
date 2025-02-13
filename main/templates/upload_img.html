@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload & Classification</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .preview-img {
+            max-width: auto;  /* Limita el ancho máximo a 300px */
+            max-height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">OPCIONES</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Chatbot</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/upload_img">|  Clasificacion Imagenes  |</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/pose_recognition">Angulos Articular</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center">Sube tu imagen y clasificala</h1>
+        <form id="image-upload-form" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="image">Selecciona una imagen:</label>
+                        <input type="file" class="form-control-file" id="image" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#categoriesModal">
+                        <a href="https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a"  target="_blank" class="text-white">Ver etiquetas disponibles</a>
+                    </button>
+                </div>
+            </div>
+              
+              
+            <div class="text-center">
+                <img id="preview" class="preview-img d-none" alt="Image Preview">
+            </div>
+            <div class="row">
+                <button type="submit" class="btn btn-primary mt-3 mb-5 col-12">Clasificar Imagen</button>
+            </div>
+        </form>
+        <div id="result" class="mt-4 text-center d-none">
+            <h4>Resultado de la Clasificacion:</h4>
+            <p id="classification-result" class="text-success font-weight-bold h2"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('image').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('image-upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('image').files[0]);
+
+            try {
+                const response = await fetch('/upload_img', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                document.getElementById('result').classList.remove('d-none');
+                document.getElementById('classification-result').textContent = data.result;
+            } catch (error) {
+                alert('Error processing the image. Please try again.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async function() {
+        const response = await fetch('/get-categories/');
+        const categories = await response.json();
+        
+        const categoriesList = document.getElementById('categories-list');
+        categories.forEach(category => {
+            const li = document.createElement('li');
+            li.textContent = category;
+            categoriesList.appendChild(li);
+        });
+        });
+    </script>
+</body>
+</html>

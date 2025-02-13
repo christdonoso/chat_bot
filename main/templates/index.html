@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat con API</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos personalizados */
+        .chat-container {
+            max-width: 500px;
+            margin: 30px auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            max-width: 75%;
+        }
+
+        .message.user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            background-color: #e9ecef;
+            align-self: flex-start;
+        }
+
+        .input-group {
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">OPCIONES</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Chatbot</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/upload_img">|  Clasificacion Imagenes  |</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/pose_recognition">Angulos Articular</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="chat-container bg-white shadow">
+            <!-- Área del chat -->
+            <div class="chat-box d-flex flex-column" id="chat-box">
+                <div class="message bot">¡Hola! ¿En qué puedo ayudarte?</div>
+            </div>
+
+            <!-- Entrada de mensajes -->
+            <div class="input-group">
+                <input type="text" id="message-input" class="form-control" placeholder="Escribe un mensaje...">
+                <button class="btn btn-primary" id="send-btn">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS y JavaScript personalizado -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const chatBox = document.getElementById("chat-box");
+            const messageInput = document.getElementById("message-input");
+            const sendBtn = document.getElementById("send-btn");
+
+            async function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message !== "") {
+                    // Agregar mensaje del usuario
+                    addMessage(message, "user");
+
+                    // Llamar a la API
+                    try {
+                        const botResponse = await getBotResponse(message);
+                        addMessage(botResponse, "bot");
+                    } catch (error) {
+                        addMessage("Hubo un error con la respuesta del bot.", "bot");
+                    }
+
+                    // Limpiar input
+                    messageInput.value = "";
+                }
+            }
+
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = `message ${sender}`;
+                messageDiv.textContent = text;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            async function getBotResponse(userMessage) {
+                // Reemplaza con la URL real de tu API
+                const apiUrl = "https://chat-bot-lkcx.onrender.com/get_response";
+
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error en la API");
+                }
+
+                const data = await response.json();
+                console.log(data.response)
+                return data.message; // Ajusta según la estructura de respuesta de tu API
+            }
+
+            sendBtn.addEventListener("click", sendMessage);
+            messageInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
